@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    RS Metadata descriptor for the Sensor_data_Transmission_over_BLE RS.
+
+    Conforms to the RS Metadata Framework (metadataSchemaVersion 1.0):
+    three layers — releaseMetadata, discoveryMetadata and descriptiveMetadata
+    (anatomical / behavioral / performance).
+
+    Every value here is traceable to the source tree. Optional elements for
+    which no measured data exists (latency, throughput, memoryUsage) are
+    omitted rather than filled with placeholders.
+-->
+
+<rsMetadata>
+
+    <releaseMetadata>
+
+        <rsName>Sensor_data_Transmission_over_BLE</rsName>
+        <version>1.0.0</version>
+        <releaseDate>2026-09-09</releaseDate>
+        <releaseType>Engineering Sample</releaseType>
+        <metadataSchemaVersion>1.0</metadataSchemaVersion>
+
+    </releaseMetadata>
+
+    <discoveryMetadata>
+
+        <targetProducts>
+
+            <productFamily>RA</productFamily>
+            <productSeries>RA6</productSeries>
+
+            <supportedDevices>
+                <device>
+                    <family>RA</family>
+                    <series>RA6</series>
+                    <group>RA6E2</group>
+                </device>
+            </supportedDevices>
+
+        </targetProducts>
+
+        <targetMarkets>
+
+            <market>Healthcare and Medical Devices</market>
+            <market>Industrial IoT and Smart Cities</market>
+            <market>Smart Home</market>
+            <market>Consumer Electronics and Wearables</market>
+            <market>Smart Agriculture</market>
+
+        </targetMarkets>
+
+        <endApplications>
+
+            <application>Environmental Air Quality Tag</application>
+            <application>Smart Meter</application>
+            <application>Factory Asset Tag (Predictive Maintenance / Structural Health Monitoring)</application>
+            <application>Smart Lock</application>
+            <application>Temperature/Humidity Thermostat</application>
+            <application>Water Leak Detector</application>
+            <application>Sprinkler System</application>
+            <application>Fitness Tracker</application>
+            <application>Smartwatch</application>
+            <application>Wireless Gaming Control</application>
+            <application>Soil Moisture Probe / Vineyard Microclimate Node</application>
+            <application>Livestock Tracking Tag</application>
+
+        </endApplications>
+
+        <functionalTags>
+
+            <tag>BLE</tag>
+            <tag>GATT Notify</tag>
+            <tag>GATT Write</tag>
+            <tag>DA14531</tag>
+            <tag>GTL</tag>
+            <tag>UART</tag>
+            <tag>Accelerometer</tag>
+            <tag>ICM42670</tag>
+            <tag>I2C</tag>
+            <tag>Data-Ready Interrupt</tag>
+            <tag>FreeRTOS</tag>
+            <tag>Sensor Data Rate Control</tag>
+
+        </functionalTags>
+
+        <hardwareInterfaces>
+
+            <requiredPeripherals>
+                <peripheral>SCI in UART Mode (GTL transport to DA14531)</peripheral>
+                <peripheral>I2C (IIC) Master</peripheral>
+                <peripheral>External IRQ (ICU)</peripheral>
+            </requiredPeripherals>
+
+            <inputSignals>
+                <signal>I2C SDA (accelerometer data)</signal>
+                <signal>ICM42670 INT1 data-ready (active on P301, ICU IRQ channel 6)</signal>
+                <signal>SCI UART RXD (GTL frames from DA14531)</signal>
+            </inputSignals>
+
+            <outputSignals>
+                <signal>I2C SCL</signal>
+                <signal>SCI UART TXD (GTL frames to DA14531)</signal>
+            </outputSignals>
+
+            <connectedDevices>
+                <device>US159-DA14531EVZ (DA14531 BLE module)</device>
+                <device>TDK QCIOT-ICM42671POCZ (ICM42670 accelerometer board)</device>
+            </connectedDevices>
+
+        </hardwareInterfaces>
+
+    </discoveryMetadata>
+
+    <descriptiveMetadata>
+
+        <anatomicalMetadata>
+
+            <identity>
+
+                <name>Sensor_data_Transmission_over_BLE</name>
+                <shortName>rs_ble_sensor</shortName>
+                <category>Connectivity</category>
+                <rsType>Driver and Middleware Module</rsType>
+
+            </identity>
+
+            <description>
+
+                <summary>Bridges ICM42670 accelerometer samples to a BLE central over a DA14531 module connected via GTL over UART. The ICM thread hands each new 3-axis milli-g sample to the BLE thread through an event group; the BLE thread notifies the sample as a 6-byte X/Y/Z payload on the Sensor Data GATT characteristic whenever a client is connected. A companion Sensor Write Service accepts a Sensor ODR (output data rate) write from the client, in the 12-1600 Hz range, which the ICM thread later applies by reconfiguring the accelerometer. No lifecycle state machine, control struct, or status enum exists - the component is five free functions operating on module-level globals.</summary>
+
+            </description>
+
+            <classification>
+
+                <domain>Connectivity</domain>
+                <technology>Bluetooth Low Energy</technology>
+                <subCategory>BLE Sensor Data Bridge</subCategory>
+
+            </classification>
+
+            <supportedBoards>
+
+                <board>FPB-RA6E2 with US159-DA14531EVZ and TDK QCIOT-ICM42671POCZ</board>
+
+            </supportedBoards>
+
+            <dependencies>
+
+                <dependency>Renesas FSP 5.0.0 or later (validated with 6.5.0)</dependency>
+                <dependency>FSP BLE Abstraction Layer (rm_ble_abs)</dependency>
+                <dependency>FSP BLE API (r_ble_api)</dependency>
+                <dependency>DA14531 GTL transport over SCI UART</dependency>
+                <dependency>FreeRTOS (event group handoff between ICM and BLE threads)</dependency>
+                <dependency>rm_icm42670 accelerometer driver (I2C)</dependency>
+
+            </dependencies>
+
+            <hardwareRequirements>
+
+                <requirement>SCI channel usable in UART mode for GTL transport to the DA14531</requirement>
+                <requirement>I2C channel for the ICM42670 accelerometer (device address 0x68)</requirement>
+                <requirement>External-interrupt-capable pin for the ICM42670 INT1 data-ready line (P301 / ICU IRQ channel 6 as validated)</requirement>
+                <requirement>US159-DA14531EVZ BLE module</requirement>
+                <requirement>TDK QCIOT-ICM42671POCZ sensor board</requirement>
+
+            </hardwareRequirements>
+
+            <!--
+                Artifacts are tangible files, so their existence can be asserted
+                by a verification script and they can be consumed downstream.
+                Every entry is a path, not a prose label.
+
+                Paths are relative to the PROJECT ROOT (the folder containing this
+                file), except where a group comment states otherwise.
+            -->
+            <artifacts>
+
+                <!-- Source deliverables. -->
+                <artifact>src/rs_ble_sensor/rs_ble_sensor_data_tx.h</artifact>
+                <artifact>src/rs_ble_sensor/rs_ble_SensorServices.h</artifact>
+                <artifact>src/rs_ble_sensor/rs_ble_SensorRates.h</artifact>
+                <artifact>src/rs_ble_sensor/sensor_data_fields.h</artifact>
+                <artifact>src/rs_ble_sensor/rs_ble_sensor_data_tx.c</artifact>
+                <artifact>src/rs_ble_sensor/rs_ble_SensorServices.c</artifact>
+                <artifact>src/rs_ble_sensor/rs_ble_SensorRates.c</artifact>
+                <artifact>metadata.r365.xml</artifact>
+
+                <!-- Application-side GATT profile (QE-generated BLE profile). -->
+                <artifact>src/app/ble</artifact>
+
+                <!--
+                    FSP/RASC project files. configuration.xml is the RASC input
+                    that regenerates ra/, ra_gen/ and ra_cfg/; those generated
+                    trees are deliberately not listed because they are absent in
+                    a fresh clone.
+                -->
+                <artifact>configuration.xml</artifact>
+                <artifact>CMakeLists.txt</artifact>
+
+                <!--
+                    Build output. CONDITIONAL: exists only after a build, so a
+                    verification script must not fail on a clean checkout.
+                    Firmware image for the RA6E2 (R7FA6E2BB) build configuration.
+                -->
+                <artifact>build/cmake.arm.debug.R7FA6E2BB/app_ble_sensor_ra6e2.elf</artifact>
+
+            </artifacts>
+
+            <documentation>
+
+                <document>README.md</document>
+
+            </documentation>
+
+        </anatomicalMetadata>
+
+        <behavioralMetadata>
+
+            <capabilities>
+
+                <capability>Hand off a 3-axis accelerometer sample from the ICM thread to the BLE thread via a FreeRTOS event group</capability>
+                <capability>Notify the current sample as a 6-byte X/Y/Z payload on the Sensor Data GATT characteristic when a client is connected</capability>
+                <capability>Skip notification silently when no client is connected (no status is surfaced to the caller)</capability>
+                <capability>Accept a Sensor ODR write (12-1600 Hz) from a BLE client and record it for later application</capability>
+                <capability>Apply the latest pending ODR request by reconfiguring and reopening the ICM42670 driver</capability>
+                <capability>Reject/ignore out-of-range ODR write requests (below 12 Hz or above 1600 Hz) without reconfiguring</capability>
+
+            </capabilities>
+
+            <publicInterfaces>
+
+                <!-- RS-owned (rs_ prefix), hand-written and maintained in this component: -->
+                <interface>void rs_ble_sensor_tx(rs_sensor_sample_t accel_data)</interface>
+                <interface>ble_status_t rs_ble_sensor_sample(rs_sensor_sample_t sensor_sample_in)</interface>
+                <interface>void rs_sensor_write_request_cb(uint16_t odr_hz)</interface>
+                <!-- FSP/RASC-generated GATT (R_BLE_ prefix), called by the RS but not owned by it: -->
+                <interface>ble_status_t R_BLE_SENSORSERVICES_NotifySensordata(uint16_t conn_hdl, const st_ble_sensorservices_sensordata_t *p_value)</interface>
+                <interface>ble_status_t R_BLE_SENSORRATES_Init(ble_servs_app_cb_t cb)</interface>
+
+            </publicInterfaces>
+
+            <configuration>
+
+                <parameter>sensor_x</parameter>
+                <parameter>sensor_y</parameter>
+                <parameter>sensor_z</parameter>
+                <parameter>odr_hz</parameter>
+
+            </configuration>
+
+            <executionModel>
+
+                <initialization>
+                    ble_init() (QE-generated app_main.c) opens g_ble_abs0, initializes the Sensor Service and Sensor Write Service GATT profiles, and starts BLE advertising. No dedicated init call exists in this component itself - it participates only through the two GATT service Init() calls and the BLE event group created before app_main()'s main loop.
+                </initialization>
+
+                <runtimeBehavior>
+                    The ICM thread converts each new I2C sample to milli-g and calls rs_ble_sensor_tx(), which stores it in g_sensor_accel_sample and sets BLE_SENSOR_TX_EVT_BIT to wake the BLE thread. The BLE thread's main loop, after project_logic()'s rate-limit/threshold gate, calls rs_ble_sensor_sample(), which copies the sample into the GATT wire struct and calls R_BLE_SENSORSERVICES_NotifySensordata() only if g_conn_hdl is valid; the call happens even if the peer's CCCD is disabled, in which case the FSP/DA14531 layer drops it on air. Sensor ODR writes arrive on the BLE thread via SensorRates_cb() -&gt; rs_sensor_write_request_cb(), which only records the pending value (volatile flags, no I2C access); the ICM thread separately calls icm_odr_apply_pending() to re-run Open/InterruptCfgSet/MeasurementStart with the latest pending value, latest-write-wins with no queue.
+                </runtimeBehavior>
+
+            </executionModel>
+
+            <useCases>
+
+                <useCase>Remote Patient Monitoring</useCase>
+                <useCase>Predictive Maintenance and Structural Health Monitoring</useCase>
+                <useCase>Smart Home Sensor Node</useCase>
+                <useCase>Wearable Fitness/Activity Tracking</useCase>
+                <useCase>Smart Agriculture Microclimate Monitoring</useCase>
+                <useCase>Remote Sensor Sample-Rate Control</useCase>
+
+            </useCases>
+
+        </behavioralMetadata>
+
+        <performanceMetadata>
+
+            <performanceCharacteristics>
+
+                <operatingRange>
+                    Sensor ODR is configurable over BLE from 12 Hz to 1600 Hz (values outside this range are silently ignored). Notification payload is a fixed 6 bytes (BLE_SENSORSERVICES_SENSORDATA_LEN), one uint16_t each for X/Y/Z, defined by sensor_data_fields.h.
+                </operatingRange>
+
+                <customMetric name="notificationPayloadSize">
+                    Fixed 6 bytes (3 x uint16_t). Not runtime-configurable; changing it requires editing sensor_data_fields.h and regenerating the GATT profile.
+                </customMetric>
+
+                <customMetric name="odrRange">
+                    12 Hz to 1600 Hz, inclusive. Requests outside this range are dropped with no reconfiguration and no error reported to the client.
+                </customMetric>
+
+                <customMetric name="hostPollingLoad">
+                    None on the BLE side for sample delivery - the BLE thread is woken only by the ICM thread setting BLE_SENSOR_TX_EVT_BIT via a FreeRTOS event group; the ICM thread itself is woken by the ICM42670 INT1 data-ready interrupt, not by polling.
+                </customMetric>
+
+                <customMetric name="errorReporting">
+                    None. rs_ble_sensor_sample() discards the FSP notify return status entirely; there is no status enum or lifecycle state anywhere in this component.
+                </customMetric>
+
+                <customMetric name="memoryAllocation">
+                    Static only. No dynamic allocation; the sample and GATT wire structs are module-level globals / stack copies.
+                </customMetric>
+
+            </performanceCharacteristics>
+
+            <resources>
+
+                <resource>One SCI channel in UART mode (GTL transport to the DA14531)</resource>
+                <resource>One I2C channel for the ICM42670</resource>
+                <resource>One external IRQ (ICU) channel for the ICM42670 data-ready line</resource>
+                <resource>One FreeRTOS event group (g_ble_event_group_handle) shared between the ICM and BLE threads</resource>
+                <resource>Static sample and GATT payload buffers</resource>
+
+            </resources>
+
+            <validation>
+
+                <validationCase>
+                    <validatedBoard>FPB-RA6E2</validatedBoard>
+                    <validatedDevice>RA6E2</validatedDevice>
+                    <validatedConfiguration>
+                        US159-DA14531EVZ connected via GTL over SCI0 UART; TDK QCIOT-ICM42671POCZ (ICM42670) connected over I2C at address 0x68 with INT1 data-ready on P301 routed to ICU IRQ channel 6. Verified GATT properties: Sensor Data characteristic Notify+CCCD only (properties byte 0x10, no Write), Sensor ODR characteristic Write with response (properties byte 0x08). Validated against Renesas GATTBrowser and/or Renesas Smart Console, using FSP 6.5.0 with FreeRTOS.
+                    </validatedConfiguration>
+                </validationCase>
+
+            </validation>
+
+        </performanceMetadata>
+
+    </descriptiveMetadata>
+
+</rsMetadata>
